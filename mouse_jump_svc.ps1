@@ -31,15 +31,34 @@ Add-Type -AssemblyName System.Windows.Forms
 $TIMER_INTERVAL = 100
 $MUTEX_NAME = "Global/mutex"  # Avoid multiple instances
 
+$KEY_F22 = 0x85
+$KEY_F23 = 0x86
 $KEY_F24 = 0x87
 
-function timer_function($notify) {
-    if ([User32]::GetAsyncKeyState($KEY_F24) -ne 0) {
-        $handle = [User32]::GetForegroundWindow()
-        $rect = New-Object RECT
-        if ([User32]::GetWindowRect($handle, [ref]$rect)) {
-            [User32]::SetCursorPos(($rect.Left + $rect.Right) / 2, $rect.Top + 15)
+function jump_cursor($xPos, $yPos) {
+    $handle = [User32]::GetForegroundWindow()
+    $rect = New-Object RECT
+    if ([User32]::GetWindowRect($handle, [ref]$rect)) {
+        $x = switch ($xPos) {
+            "Left" { $rect.Left + 1 }
+            "Right" { $rect.Right - 1}
+            "Center" { ($rect.Left + $rect.Right) / 2 }
         }
+        $y = switch ($yPos) {
+            "Top" { $rect.Top + 15 }
+            "Bottom" { $rect.Bottom - 1 }
+        }
+        [User32]::SetCursorPos($x, $y)
+    }
+}
+
+function timer_function($notify) {
+    if ([User32]::GetAsyncKeyState($KEY_F22) -ne 0) {
+        jump_cursor "Left" "Bottom"
+    } elseif ([User32]::GetAsyncKeyState($KEY_F23) -ne 0) {
+        jump_cursor "Right" "Bottom"
+    } elseif ([User32]::GetAsyncKeyState($KEY_F24) -ne 0) {
+        jump_cursor "Center" "Top"
     }
 }
 
