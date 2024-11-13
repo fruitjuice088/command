@@ -3,12 +3,14 @@ setlocal
 
 rem Prepare ... Set IME Config: VK240(Eisu) = IME OFF, IME ON/OFF, IME ON/OFF, ...
 
-set SRC_BASE=%OneDrive%\repos\command\powertoysconfig
+set SRC_BASE=%~dp0\powertoysconfig
 set TARGET_JSON=%LOCALAPPDATA%\Microsoft\PowerToys\Keyboard Manager\default.json
 
-if "%~1"=="jp" (
-    copy /Y "%SRC_BASE%\%~1.json" "%TARGET_JSON%"
-) else if "%~1"=="us" (
+set IS_VALID=FALSE
+if "%~1"=="jp" set IS_VALID=TRUE
+if "%~1"=="us" set IS_VALID=TRUE
+
+if %IS_VALID%==TRUE (
     copy /Y "%SRC_BASE%\%~1.json" "%TARGET_JSON%"
 ) else (
     echo Invalid argument. Please specify "jp" or "us".
